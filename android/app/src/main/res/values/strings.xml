@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">RifaChoco</string>
+    <string name="title_activity_main">RifaChoco</string>
+    <string name="package_name">io.rifachoco.app</string>
+    <string name="custom_url_scheme">io.rifachoco.app</string>
+</resources>
