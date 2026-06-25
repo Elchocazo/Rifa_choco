@@ -1,5 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Heart, Ticket, Search, ShieldCheck, ChevronRight, CheckCircle2, User, Phone, Save, Trash2, Download, Copy } from 'lucide-react';
+import { Heart, Ticket, Search, ShieldCheck, ChevronRight, CheckCircle2, User, Phone, Save, Trash2, Download, Copy, CloudUpload } from 'lucide-react';
+import { db } from './firebase';
+import { collection, onSnapshot, doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import './index.css';
 import chocoImg from './assets/choco.png';
 
@@ -31,34 +33,53 @@ export default function App() {
   // UI State
   const [activeTab, setActiveTab] = useState(0);
 
-  // Load from LocalStorage
+  // Load from Firestore
   useEffect(() => {
-    const savedTickets = localStorage.getItem('choco_rifa_tickets');
-    if (savedTickets) {
-      setSoldTickets(JSON.parse(savedTickets));
-    }
-    const savedExpenses = localStorage.getItem('choco_rifa_expenses');
-    if (savedExpenses) {
-      setExpenses(JSON.parse(savedExpenses));
-    }
+    const unsubscribeTickets = onSnapshot(collection(db, 'tickets'), (snapshot) => {
+      const ticketsData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setSoldTickets(ticketsData);
+    });
+
+    const unsubscribeExpenses = onSnapshot(collection(db, 'expenses'), (snapshot) => {
+      const expensesData = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      setExpenses(expensesData);
+    });
+
+    return () => {
+      unsubscribeTickets();
+      unsubscribeExpenses();
+    };
   }, []);
 
-  // Save to local storage
-  const saveTickets = (newTickets) => {
-    setSoldTickets(newTickets);
-    // Persist to localStorage instantly
-    localStorage.setItem('choco_rifa_tickets', JSON.stringify(newTickets));
+  const handleMigrateData = async () => {
+    try {
+      const savedTickets = JSON.parse(localStorage.getItem('choco_rifa_tickets') || '[]');
+      const savedExpenses = JSON.parse(localStorage.getItem('choco_rifa_expenses') || '[]');
+      
+      let count = 0;
+      for (const ticket of savedTickets) {
+        await setDoc(doc(db, 'tickets', ticket.id), ticket);
+        count++;
+      }
+      for (const exp of savedExpenses) {
+        await setDoc(doc(db, 'expenses', exp.id), exp);
+        count++;
+      }
+      
+      if (count > 0) {
+        showToast(`¡Migración exitosa de ${count} registros a la nube!`);
+      } else {
+        showToast('No hay datos locales para migrar.', 'error');
+      }
+    } catch (e) {
+      console.error(e);
+      showToast('Error en la migración', 'error');
+    }
   };
 
-  const saveExpenses = (newExpenses) => {
-    setExpenses(newExpenses);
-    localStorage.setItem('choco_rifa_expenses', JSON.stringify(newExpenses));
-  };
-
-  const deleteTicket = (id) => {
+  const deleteTicket = async (id) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este registro? Los números volverán a estar disponibles.')) {
-      const newTickets = soldTickets.filter(t => t.id !== id);
-      saveTickets(newTickets);
+      await deleteDoc(doc(db, 'tickets', id));
       showToast('Registro eliminado correctamente.');
     }
   };
@@ -138,7 +159,7 @@ export default function App() {
     setManualInput('');
   };
 
-  const handlePurchase = (e) => {
+  const handlePurchase = async (e) => {
     e.preventDefault();
     if (selectedNumbers.length === 0 || selectedNumbers.length % 4 !== 0) {
       showToast('Debes seleccionar números en grupos de 4 (ej. 4, 8, 12...)', 'error');
@@ -161,28 +182,31 @@ export default function App() {
       date: new Date().toISOString()
     };
 
-    saveTickets([...soldTickets, newTicket]);
-    setSelectedNumbers([]);
-    setName('');
-    setLastName('');
-    setPhone('');
-    setSelectionMode('manual');
-    setAutoTicketsCount(1);
-    showToast(`¡Gracias! Se han registrado ${ticketsBought} puesto(s) correctamente.`);
-    
-    // Scroll to top
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    try {
+      await setDoc(doc(db, 'tickets', newTicket.id), newTicket);
+      setSelectedNumbers([]);
+      setName('');
+      setLastName('');
+      setPhone('');
+      setSelectionMode('manual');
+      setAutoTicketsCount(1);
+      showToast(`¡Gracias! Se han registrado ${ticketsBought} puesto(s) correctamente.`);
+      
+      // Scroll to top
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } catch (error) {
+      console.error(error);
+      showToast('Error al registrar la compra', 'error');
+    }
   };
 
-  const togglePaymentStatus = (id) => {
-    const updatedTickets = soldTickets.map(ticket => {
-      if (ticket.id === id) {
-        return { ...ticket, status: ticket.status === 'paid' ? 'pending' : 'paid' };
-      }
-      return ticket;
-    });
-    saveTickets(updatedTickets);
-    showToast('Estado de pago actualizado exitosamente.');
+  const togglePaymentStatus = async (id) => {
+    const ticket = soldTickets.find(t => t.id === id);
+    if (ticket) {
+      const newStatus = ticket.status === 'paid' ? 'pending' : 'paid';
+      await updateDoc(doc(db, 'tickets', id), { status: newStatus });
+      showToast('Estado de pago actualizado exitosamente.');
+    }
   };
 
   // Calculate total tickets sold based on numbers (4 numbers = 1 ticket)
@@ -194,7 +218,7 @@ export default function App() {
   const totalExpenses = expenses.reduce((acc, exp) => acc + exp.amount, 0);
   const netBalance = (ticketsPaid * 10000) - totalExpenses;
 
-  const handleAddExpense = (e) => {
+  const handleAddExpense = async (e) => {
     e.preventDefault();
     if (!expenseDesc || !expenseAmount) return;
     const newExpense = {
@@ -203,15 +227,20 @@ export default function App() {
       amount: parseFloat(expenseAmount),
       date: new Date().toISOString()
     };
-    saveExpenses([...expenses, newExpense]);
-    setExpenseDesc('');
-    setExpenseAmount('');
-    showToast('Gasto agregado exitosamente.');
+    try {
+      await setDoc(doc(db, 'expenses', newExpense.id), newExpense);
+      setExpenseDesc('');
+      setExpenseAmount('');
+      showToast('Gasto agregado exitosamente.');
+    } catch (error) {
+      console.error(error);
+      showToast('Error al agregar gasto.', 'error');
+    }
   };
 
-  const handleDeleteExpense = (id) => {
+  const handleDeleteExpense = async (id) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este gasto?')) {
-      saveExpenses(expenses.filter(e => e.id !== id));
+      await deleteDoc(doc(db, 'expenses', id));
       showToast('Gasto eliminado.');
     }
   };
@@ -333,6 +362,16 @@ export default function App() {
                   ${netBalance.toLocaleString()} COP
                 </p>
               </div>
+            </div>
+
+            <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'flex-end' }}>
+              <button 
+                onClick={handleMigrateData}
+                className="btn btn-outline"
+                style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', borderColor: 'var(--primary)', color: 'var(--primary)' }}
+              >
+                <CloudUpload size={18} /> Subir Datos Locales a la Nube
+              </button>
             </div>
 
             <div style={{ display: 'flex', gap: '2rem', flexWrap: 'wrap' }}>
