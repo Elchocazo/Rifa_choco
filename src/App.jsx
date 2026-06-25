@@ -1,7 +1,8 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Heart, Ticket, Search, ShieldCheck, ChevronRight, CheckCircle2, User, Phone, Save, Trash2, Download, Copy, CloudUpload } from 'lucide-react';
+import { Heart, Ticket, Search, ShieldCheck, ChevronRight, CheckCircle2, User, Phone, Save, Trash2, Download, Copy, CloudUpload, Calendar, Gift, Menu, X, CreditCard } from 'lucide-react';
 import { db } from './firebase';
 import { collection, onSnapshot, doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
+import { Routes, Route, useNavigate } from 'react-router-dom';
 import './index.css';
 import chocoImg from './assets/choco.png';
 
@@ -9,7 +10,7 @@ import chocoImg from './assets/choco.png';
 const ALL_NUMBERS = Array.from({ length: 1000 }, (_, i) => i.toString().padStart(3, '0'));
 
 export default function App() {
-  const [isAdmin, setIsAdmin] = useState(false);
+  const navigate = useNavigate();
   const [soldTickets, setSoldTickets] = useState([]);
   const [expenses, setExpenses] = useState([]);
   const [selectedNumbers, setSelectedNumbers] = useState([]);
@@ -73,7 +74,7 @@ export default function App() {
       }
     } catch (e) {
       console.error(e);
-      showToast('Error en la migración', 'error');
+      showToast('Error: ' + e.message, 'error');
     }
   };
 
@@ -312,19 +313,18 @@ export default function App() {
     );
   };
 
-  if (isAdmin) {
-    const filteredTickets = soldTickets.filter(ticket => 
-      searchNumber === '' || ticket.numbers.includes(searchNumber)
-    );
+  const filteredTickets = soldTickets.filter(ticket => 
+    searchNumber === '' || ticket.numbers.includes(searchNumber)
+  );
 
-    return (
+  const adminView = (
       <>
         <header>
           <div className="container header-content">
-            <a href="#" className="logo" onClick={() => setIsAdmin(false)}>
+            <a href="#" className="logo" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
               <Heart fill="currentColor" /> Rifa por Choco
             </a>
-            <button className="btn btn-outline" onClick={() => setIsAdmin(false)}>
+            <button className="btn btn-outline" onClick={() => navigate('/')}>
               Volver al Inicio
             </button>
           </div>
@@ -571,10 +571,9 @@ export default function App() {
           </div>
         </main>
       </>
-    );
-  }
+  );
 
-  return (
+  const homeView = (
     <>
       {toast && (
         <div className="toaster">
@@ -590,7 +589,7 @@ export default function App() {
           <a href="#" className="logo">
             <Heart fill="currentColor" /> Rifa por Choco
           </a>
-          <button className="btn btn-outline" onClick={() => setIsAdmin(true)} style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}>
+          <button className="btn btn-outline" onClick={() => navigate('/admin')} style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}>
             Admin
           </button>
         </div>
@@ -613,7 +612,7 @@ export default function App() {
             <div className="glass-card" style={{ maxWidth: '500px', margin: '0 auto 3rem', padding: '1.5rem' }}>
               <h3 style={{ marginBottom: '0.5rem' }}>Meta de la Rifa</h3>
               <p style={{ color: 'var(--text-light)', marginBottom: '1rem' }}>
-                La rifa juega el <strong>27 de Junio</strong>
+                La rifa juega el <strong>25 de Julio</strong>
               </p>
               
               <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontWeight: 'bold' }}>
@@ -856,6 +855,14 @@ export default function App() {
           </div>
         </section>
       </main>
-    </>
+      </>
+  );
+
+  return (
+    <Routes>
+      <Route path="/" element={homeView} />
+      <Route path="/comprar" element={homeView} />
+      <Route path="/admin" element={adminView} />
+    </Routes>
   );
 }
