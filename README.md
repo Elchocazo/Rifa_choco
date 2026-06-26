@@ -1,16 +1,35 @@
-# React + Vite
+# 🐾 Rifa por Choco - App Móvil (PWA)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Esta es una aplicación móvil optimizada para la gestión de la rifa pro-fondos veterinarios de Choco.
 
-Currently, two official plugins are available:
+## 📱 Características de la App
+- **Instalable:** Funciona como una app nativa en Android e iOS (PWA).
+- **Confirmación por WhatsApp:** Genera automáticamente un mensaje de cobro para el cliente.
+- **Diseño Mobile-First:** Interfaz limpia y optimizada para uso táctil.
+- **Sincronización en Tiempo Real:** Base de datos en la nube con Firebase.
+- **Panel Administrativo:** Control de pagos y visualización de números vendidos.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🚀 Cómo instalar en tu móvil
+1. Abre el enlace del proyecto en tu navegador móvil.
+2. **Android:** Ve al menú de Chrome y elige "Instalar aplicación".
+3. **iOS:** Dale al botón "Compartir" y selecciona "Añadir a la pantalla de inicio".
 
-## React Compiler
+## 🛠 Comandos para el desarrollador
+```bash
+# Iniciar en modo desarrollo
+npm run dev
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+# Construir para producción
+npm run build
 
-## Expanding the ESLint configuration
+# Subir cambios a GitHub (Manual)
+git add .
+git commit -m "Descripción del cambio"
+git push
+```
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+## 🎨 Tecnologías
+- **Frontend:** React + Vite
+- **Base de Datos:** Firebase Firestore
+- **Iconos:** Lucide React
+- **PWA:** Service Workers & Web Manifest

@@ -1,0 +1,24 @@
+{
+  "short_name": "RifaChoco",
+  "name": "Rifa por Choco - App Oficial",
+  "icons": [
+    {
+      "src": "favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    },
+    {
+      "src": "favicon.svg",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "maskable"
+    }
+  ],
+  "start_url": ".",
+  "display": "standalone",
+  "theme_color": "#f59e0b",
+  "background_color": "#fdfbf7",
+  "orientation": "portrait",
+  "description": "Ayuda a Choco con sus gastos veterinarios participando en su rifa oficial."
+}
