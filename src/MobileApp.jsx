@@ -325,13 +325,10 @@ export default function MobileApp() {
   const adminView = (
       <>
         <header>
-          <div className="container header-content">
-            <a href="#" className="logo" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
-              <Heart fill="currentColor" /> Rifa por Choco
+          <div className="container header-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            <a href="#" className="logo" onClick={(e) => { e.preventDefault(); navigate('/'); }} style={{ textDecoration: 'none', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.25rem', fontWeight: '800', margin: 0, padding: '10px 0' }}>
+              <Heart fill="var(--primary)" color="var(--primary)" size={24} /> Rifa por Choco
             </a>
-            <button className="btn btn-outline" onClick={() => navigate('/')}>
-              Volver al Inicio
-            </button>
           </div>
         </header>
         
@@ -819,13 +816,10 @@ export default function MobileApp() {
       )}
 
       <header>
-        <div className="container header-content">
-          <a href="#" className="logo" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
-            <Heart fill="currentColor" /> Rifa por Choco
+        <div className="container header-content" style={{ display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+          <a href="#" className="logo" onClick={(e) => { e.preventDefault(); navigate('/'); }} style={{ textDecoration: 'none', color: 'var(--text-color)', display: 'flex', alignItems: 'center', gap: '8px', fontSize: '1.25rem', fontWeight: '800', margin: 0, padding: '10px 0' }}>
+            <Heart fill="var(--primary)" color="var(--primary)" size={24} /> Rifa por Choco
           </a>
-          <button className="btn btn-outline" onClick={() => navigate('/')} style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}>
-            Inicio
-          </button>
         </div>
       </header>
       {purchaseSuccess ? (
