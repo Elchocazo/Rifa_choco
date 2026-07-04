@@ -216,7 +216,7 @@ export default function MobileApp() {
           </div>
         </>
       )}
-      <div style={{textAlign:'center', padding:'20px'}}><small onClick={()=>navigate('/admin')} style={{color:'#ccc'}}>Admin</small></div>
+      <div style={{textAlign:'center', padding:'20px'}}><small onClick={()=>navigate('/admin')} style={{color:'#ccc', cursor: 'pointer'}}>Admin</small></div>
     </div>
   );
 
@@ -226,7 +226,7 @@ export default function MobileApp() {
       {toast && <div className="toaster"><div className={`toast ${toast.type}`}>{toast.message}</div></div>}
       <Routes>
         <Route path="/" element={<HomeView />} />
-        <Route path="/ventas" element={<AdminView />} />
+        <Route path="/admin" element={<AdminView />} />
       </Routes>
     </>
   );

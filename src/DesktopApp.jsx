@@ -704,7 +704,7 @@ export default function DesktopApp() {
   return (
     <Routes>
       <Route path="/" element={homeView} />
-      <Route path="/ventas" element={adminView} />
+      <Route path="/admin" element={adminView} />
     </Routes>
   );
 }
