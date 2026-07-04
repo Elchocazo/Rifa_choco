@@ -39,6 +39,7 @@ export default function DesktopApp() {
   const [phone, setPhone] = useState('');
   const [toast, setToast] = useState(null);
   const [purchaseSuccess, setPurchaseSuccess] = useState(null);
+  const [showPayment, setShowPayment] = useState(false);
   const [selectionMode, setSelectionMode] = useState('manual');
   const [autoTicketsCount, setAutoTicketsCount] = useState(1);
   const [manualInput, setManualInput] = useState('');
@@ -208,6 +209,7 @@ export default function DesktopApp() {
     try {
       await setDoc(doc(db, 'tickets', newTicket.id), newTicket);
       setPurchaseSuccess(newTicket);
+      setShowPayment(true);
       setSelectedNumbers([]);
       setName('');
       setLastName('');
@@ -852,21 +854,69 @@ export default function DesktopApp() {
         </div>
       </header>
       {purchaseSuccess ? (
-        <div className="container animate-fade-in" style={{paddingTop:'4rem', paddingBottom:'4rem'}}>
-          <div className="glass-card" style={{textAlign:'center', maxWidth:'500px', margin:'0 auto'}}>
-            <CheckCircle2 color="var(--success)" size={64} style={{margin:'0 auto 20px'}}/>
-            <h2 style={{marginBottom:'10px'}}>¡Números Apartados!</h2>
-            <p style={{color:'var(--text-light)', marginBottom:'25px'}}>Para confirmar tu compra, envía el comprobante por WhatsApp.</p>
-            <button className="btn btn-primary" style={{width:'100%', marginBottom:'15px', padding:'1rem', fontSize:'1.1rem'}} onClick={() => {
-              const msg = `¡Hola! Acabo de reservar números para la Rifa de Choco 🐾\n\n*Nombre:* ${purchaseSuccess.name}\n*Números:* ${purchaseSuccess.numbers.join(', ')}\n*Total:* $${(purchaseSuccess.tickets * 10000).toLocaleString()}\n\n¿Me podrías confirmar los datos de pago?`;
-              window.open(`https://wa.me/573015085806?text=${encodeURIComponent(msg)}`, '_blank');
-              setPurchaseSuccess(null);
-            }}>
-              <Phone size={18}/> Enviar Comprobante por WhatsApp
-            </button>
-            <button className="btn btn-outline" style={{width:'100%'}} onClick={()=>setPurchaseSuccess(null)}>Cerrar</button>
+        showPayment ? (
+          <div className="container animate-fade-in" style={{paddingTop:'4rem', paddingBottom:'4rem'}}>
+            <div className="glass-card" style={{textAlign:'center', maxWidth:'500px', margin:'0 auto'}}>
+              <h2 style={{marginBottom:'10px', color: 'var(--primary)'}}>¡Puestos Reservados!</h2>
+              <p style={{color:'var(--text-light)', marginBottom:'20px'}}>
+                Para asegurar tus números, transfiere el valor total a Nequi.
+              </p>
+              
+              <div style={{background: 'rgba(0,0,0,0.2)', padding: '20px', borderRadius: '15px', marginBottom: '20px'}}>
+                <h3 style={{fontSize: '2rem', marginBottom: '10px'}}>${(purchaseSuccess.tickets * 10000).toLocaleString()}</h3>
+                <p style={{fontSize: '1.2rem', marginBottom: '15px'}}>Nequi: <strong>301 508 5806</strong><br/>(Manuel Muñoz)</p>
+                
+                <img src="/nequi_qr.png" alt="QR Nequi" style={{width: '200px', height: '200px', objectFit: 'contain', margin: '0 auto 15px', display: 'block', borderRadius: '10px', backgroundColor: 'white', padding: '10px'}} onError={(e) => e.target.style.display = 'none'} />
+
+                <div style={{display: 'flex', gap: '10px', justifyContent: 'center'}}>
+                  <button className="btn btn-outline" onClick={() => {
+                    navigator.clipboard.writeText('3015085806');
+                    showToast('¡Número copiado!');
+                  }}>
+                    <Copy size={18}/> Copiar Número
+                  </button>
+                  <a href="nequi://" className="btn btn-primary" style={{display: 'flex', alignItems: 'center', gap: '5px', textDecoration: 'none'}}>
+                    Abrir Nequi
+                  </a>
+                </div>
+              </div>
+
+              <button className="btn btn-primary" style={{width:'100%', padding:'1rem', fontSize:'1.1rem'}} onClick={() => {
+                setShowPayment(false);
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}>
+                <CheckCircle2 size={18}/> ¡Ya transferí!
+              </button>
+            </div>
           </div>
-        </div>
+        ) : (
+          <div className="container animate-fade-in" style={{paddingTop:'4rem', paddingBottom:'4rem'}}>
+            <div className="glass-card" style={{textAlign:'center', maxWidth:'500px', margin:'0 auto', border: '2px solid var(--primary)'}}>
+              <CheckCircle2 color="var(--success)" size={64} style={{margin:'0 auto 20px'}}/>
+              <h2 style={{marginBottom:'10px'}}>¡Reserva Exitosa!</h2>
+              <p style={{color:'var(--text-light)', marginBottom:'20px'}}>
+                Toma un pantallazo de esta pantalla y envíalo junto con el comprobante de pago por WhatsApp.
+              </p>
+
+              <div style={{background: 'rgba(255,255,255,0.1)', padding: '20px', borderRadius: '10px', marginBottom: '25px', textAlign: 'left'}}>
+                <p style={{marginBottom: '5px'}}><strong>Nombre:</strong> {purchaseSuccess.name}</p>
+                <p style={{marginBottom: '5px'}}><strong>Tus Números:</strong> <span style={{color: 'var(--primary)', fontSize: '1.2rem', fontWeight: 'bold'}}>{purchaseSuccess.numbers.join(', ')}</span></p>
+                <p style={{marginBottom: '0'}}><strong>Total a pagar:</strong> ${(purchaseSuccess.tickets * 10000).toLocaleString()}</p>
+              </div>
+
+              <button className="btn btn-primary" style={{width:'100%', marginBottom:'15px', padding:'1rem', fontSize:'1.1rem'}} onClick={() => {
+                const msg = `¡Hola! Aquí está mi pantallazo y comprobante de pago para la Rifa de Choco 🐾\n\n*Nombre:* ${purchaseSuccess.name}\n*Números:* ${purchaseSuccess.numbers.join(', ')}\n*Total:* $${(purchaseSuccess.tickets * 10000).toLocaleString()}`;
+                window.open(`https://wa.me/573015085806?text=${encodeURIComponent(msg)}`, '_blank');
+              }}>
+                <Phone size={18}/> Enviar por WhatsApp
+              </button>
+              <button className="btn btn-outline" style={{width:'100%'}} onClick={() => {
+                setPurchaseSuccess(null);
+                setShowPayment(false);
+              }}>Cerrar y Volver</button>
+            </div>
+          </div>
+        )
       ) : (
       <main>
         <section className="hero container animate-fade-in">
