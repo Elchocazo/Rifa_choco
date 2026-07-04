@@ -47,6 +47,7 @@ export default function MobileApp() {
   const [activeTab, setActiveTab] = useState(0);
   const [consultNumber, setConsultNumber] = useState('');
   const [adminTab, setAdminTab] = useState('dashboard');
+  const [visitCount, setVisitCount] = useState(0);
 
   // Load from Firestore
   useEffect(() => {
@@ -60,9 +61,16 @@ export default function MobileApp() {
       setExpenses(expensesData);
     });
 
+    const unsubscribeStats = onSnapshot(doc(db, 'stats', 'global'), (docSnap) => {
+      if (docSnap.exists()) {
+        setVisitCount(docSnap.data().visits || 0);
+      }
+    });
+
     return () => {
       unsubscribeTickets();
       unsubscribeExpenses();
+      unsubscribeStats();
     };
   }, []);
 
@@ -367,6 +375,10 @@ export default function MobileApp() {
             {adminTab === 'dashboard' ? (
               <>
             <div style={{ display: 'flex', gap: '2rem', marginBottom: '2rem', flexWrap: 'wrap' }}>
+              <div>
+                <p className="form-label">Total Visitas</p>
+                <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--text-dark)' }}>{visitCount}</p>
+              </div>
               <div>
                 <p className="form-label">Total Puestos</p>
                 <p style={{ fontSize: '2rem', fontWeight: 'bold', color: 'var(--primary)' }}>{ticketsSold} / 250</p>
