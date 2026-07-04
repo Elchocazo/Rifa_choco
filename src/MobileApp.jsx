@@ -1,5 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
-import { Heart, Search, CheckCircle2, Phone, Trash2, ShoppingBag, LayoutDashboard } from 'lucide-react';
+import { Heart, Search, CheckCircle2, Phone, Trash2, ShoppingBag, LayoutDashboard, Ticket } from 'lucide-react';
 import { db } from './firebase';
 import { collection, onSnapshot, doc, setDoc, deleteDoc, updateDoc } from 'firebase/firestore';
 import { Routes, Route, useNavigate, useLocation } from 'react-router-dom';
@@ -20,6 +20,10 @@ export default function MobileApp() {
   const [toast, setToast] = useState(null);
   const [activeTab, setActiveTab] = useState(0);
   const [purchaseSuccess, setPurchaseSuccess] = useState(null);
+  const [selectionMode, setSelectionMode] = useState('manual');
+  const [autoTicketsCount, setAutoTicketsCount] = useState(1);
+  const [manualInput, setManualInput] = useState('');
+  const [consultNumber, setConsultNumber] = useState('');
 
   useEffect(() => {
     const unsubT = onSnapshot(collection(db, 'tickets'), (s) => setSoldTickets(s.docs.map(d => ({ id: d.id, ...d.data() }))));
@@ -37,6 +41,50 @@ export default function MobileApp() {
   const toggleNumber = (num) => {
     if (soldNumbersList.includes(num)) return;
     setSelectedNumbers(prev => prev.includes(num) ? prev.filter(n => n !== num) : [...prev, num]);
+  };
+
+  const handleAutoGenerate = () => {
+    const neededNumbers = autoTicketsCount * 4;
+    const availableNumbers = Array.from({length: 1000}, (_, i) => String(i).padStart(3, '0'))
+      .filter(n => !soldNumbersList.includes(n));
+      
+    if (availableNumbers.length < neededNumbers) {
+      showToast(`Solo quedan ${availableNumbers.length} números disponibles.`, 'error');
+      return;
+    }
+    const shuffled = availableNumbers.sort(() => 0.5 - Math.random());
+    const picked = shuffled.slice(0, neededNumbers);
+    setSelectedNumbers(picked);
+    showToast(`¡Se han seleccionado ${neededNumbers} números al azar!`);
+  };
+
+  const handleManualInputSubmit = () => {
+    const nums = manualInput.match(/\d{1,3}/g) || [];
+    const formattedNums = nums.map(n => n.padStart(3, '0'));
+    const uniqueNums = [...new Set(formattedNums)];
+    
+    if (uniqueNums.length === 0) {
+      showToast('Ingresa números válidos', 'error');
+      return;
+    }
+    const unavailable = [];
+    const valid = [];
+    uniqueNums.forEach(num => {
+      if (soldNumbersList.includes(num) || !ALL_NUMBERS.includes(num)) {
+        unavailable.push(num);
+      } else {
+        valid.push(num);
+      }
+    });
+    if (unavailable.length > 0) showToast(`No disponibles: ${unavailable.join(', ')}`, 'error');
+    if (valid.length > 0) {
+      const newSelections = valid.filter(n => !selectedNumbers.includes(n));
+      if (newSelections.length > 0) {
+        setSelectedNumbers(prev => [...prev, ...newSelections]);
+        if (unavailable.length === 0) showToast(`¡Se agregaron ${newSelections.length} números!`);
+      }
+    }
+    setManualInput('');
   };
 
   const handlePurchase = async (e) => {
@@ -58,6 +106,7 @@ export default function MobileApp() {
       await setDoc(doc(db, 'tickets', newTicket.id), newTicket);
       setPurchaseSuccess(newTicket);
       setSelectedNumbers([]); setName(''); setPhone('');
+      setSelectionMode('manual'); setAutoTicketsCount(1);
       showToast('¡Registro exitoso!');
       window.scrollTo(0,0);
     } catch (e) { showToast('Error al registrar', 'error'); }
@@ -90,7 +139,44 @@ export default function MobileApp() {
     </div>
   );
 
-  const HomeView = () => (
+  const ConsultView = () => (
+    <div className="container animate-fade-in" style={{paddingTop:'2rem'}}>
+      <div className="glass-card" style={{textAlign:'center'}}>
+        <Search size={40} color="var(--primary)" style={{margin:'0 auto 10px'}}/>
+        <h2 style={{marginBottom:'10px'}}>Consultar Número</h2>
+        <p style={{color:'var(--text-light)', marginBottom:'20px', fontSize:'0.9rem'}}>Verifica si un número está disponible o vendido.</p>
+        <input 
+          type="text" 
+          className="form-input" 
+          placeholder="Ej: 045"
+          value={consultNumber}
+          onChange={(e) => setConsultNumber(e.target.value)}
+          maxLength={3}
+          style={{textAlign:'center', fontSize:'1.2rem', marginBottom:'20px'}}
+        />
+        {consultNumber.length === 3 && (
+          <div style={{padding:'15px', borderRadius:'10px', background: soldNumbersList.includes(consultNumber) ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)'}}>
+            {soldNumbersList.includes(consultNumber) ? (
+              <>
+                <h4 style={{color:'var(--danger)', margin:0}}>No disponible</h4>
+                <small style={{color:'var(--text-light)'}}>El {consultNumber} ya fue apartado.</small>
+              </>
+            ) : ALL_NUMBERS.includes(consultNumber) ? (
+              <>
+                <h4 style={{color:'var(--success)', margin:0}}>¡Disponible!</h4>
+                <small style={{color:'var(--text-light)', display:'block', marginBottom:'10px'}}>El {consultNumber} está libre.</small>
+                <button className="btn btn-primary" onClick={()=>navigate('/comprar')} style={{width:'100%'}}>Comprar</button>
+              </>
+            ) : (
+              <small style={{color:'var(--text-light)'}}>Número inválido</small>
+            )}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+
+  const PurchaseView = () => (
     <div className="container animate-fade-in">
       {purchaseSuccess ? (
         <div className="glass-card animate-fade-in" style={{textAlign:'center', padding:'40px 20px'}}>
@@ -117,25 +203,71 @@ export default function MobileApp() {
             </div>
           </section>
 
-          <div className="glass-card">
-            <div className="tabs-container">
-              {Array.from({length:10}, (_,i) => <button key={i} className={`tab-btn ${activeTab===i?'active':''}`} onClick={()=>setActiveTab(i)}>{i}00s</button>)}
+          <div className="glass-card" style={{marginBottom: '15px'}}>
+            <div style={{ display: 'flex', gap: '5px', marginBottom: '15px', flexWrap: 'wrap' }}>
+              <button onClick={() => setSelectionMode('manual')} className={`btn ${selectionMode === 'manual' ? 'btn-primary' : 'btn-outline'}`} style={{flex:1, padding:'10px', fontSize:'0.8rem'}}>Manual</button>
+              <button onClick={() => setSelectionMode('text')} className={`btn ${selectionMode === 'text' ? 'btn-primary' : 'btn-outline'}`} style={{flex:1, padding:'10px', fontSize:'0.8rem'}}>Texto</button>
+              <button onClick={() => setSelectionMode('auto')} className={`btn ${selectionMode === 'auto' ? 'btn-primary' : 'btn-outline'}`} style={{flex:1, padding:'10px', fontSize:'0.8rem'}}>Azar</button>
             </div>
-            <div className="numbers-grid">
-              {ALL_NUMBERS.slice(activeTab*100, (activeTab*100)+100).map(num => (
-                <button key={num} disabled={soldNumbersList.includes(num)}
-                  className={`number-btn ${soldNumbersList.includes(num)?'sold':''} ${selectedNumbers.includes(num)?'selected':''}`}
-                  onClick={()=>toggleNumber(num)}>{num}</button>
-              ))}
-            </div>
+
+            {selectionMode === 'auto' && (
+              <div style={{ marginBottom: '15px', padding: '10px', background: 'var(--surface)', borderRadius: '8px' }}>
+                <label style={{ display: 'block', marginBottom: '10px', fontSize: '0.9rem', fontWeight: 'bold' }}>¿Cuántos puestos? (1 puesto = 4 nums)</label>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <input type="number" min="1" value={autoTicketsCount} onChange={(e) => setAutoTicketsCount(parseInt(e.target.value) || 1)} className="form-input" style={{flex:1}}/>
+                  <button onClick={handleAutoGenerate} className="btn btn-primary" style={{whiteSpace:'nowrap', padding: '10px 15px'}}>Generar</button>
+                </div>
+              </div>
+            )}
+
+            {selectionMode === 'text' && (
+              <div style={{ marginBottom: '15px', padding: '10px', background: 'var(--surface)', borderRadius: '8px' }}>
+                <label style={{ display: 'block', marginBottom: '10px', fontSize: '0.9rem', fontWeight: 'bold' }}>Ingresa números (ej: 015, 45, 102)</label>
+                <div style={{ display: 'flex', gap: '10px' }}>
+                  <input type="text" value={manualInput} onChange={(e) => setManualInput(e.target.value)} className="form-input" placeholder="Ej: 005, 12, 450" style={{flex:1}} onKeyDown={(e) => { if(e.key === 'Enter') handleManualInputSubmit(); }}/>
+                  <button onClick={handleManualInputSubmit} className="btn btn-primary" style={{padding: '10px 15px'}}>Agregar</button>
+                </div>
+              </div>
+            )}
+
+            {selectionMode === 'manual' && (
+              <>
+                <div className="tabs-container">
+                  {Array.from({length:10}, (_,i) => <button key={i} className={`tab-btn ${activeTab===i?'active':''}`} onClick={()=>setActiveTab(i)}>{i}00s</button>)}
+                </div>
+                <div className="numbers-grid">
+                  {ALL_NUMBERS.slice(activeTab*100, (activeTab*100)+100).map(num => (
+                    <button key={num} disabled={soldNumbersList.includes(num)}
+                      className={`number-btn ${soldNumbersList.includes(num)?'sold':''} ${selectedNumbers.includes(num)?'selected':''}`}
+                      onClick={()=>toggleNumber(num)}>{num}</button>
+                  ))}
+                </div>
+              </>
+            )}
           </div>
 
           {selectedNumbers.length > 0 && (
             <div className="glass-card" style={{position:'sticky', bottom:'20px', zIndex:100, boxShadow:'0 -5px 20px rgba(0,0,0,0.1)'}}>
+              <div style={{marginBottom:'15px'}}>
+                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'5px'}}>
+                  <h4 style={{margin:0, display:'flex', alignItems:'center', gap:'5px'}}><Ticket size={16}/> Tus números ({selectedNumbers.length})</h4>
+                  <small style={{fontWeight:'bold', color: selectedNumbers.length % 4 === 0 ? 'var(--success)' : 'var(--danger)'}}>
+                    {Math.floor(selectedNumbers.length / 4)} Puestos
+                  </small>
+                </div>
+                <div style={{display:'flex', gap:'5px', flexWrap:'wrap', maxHeight:'70px', overflowY:'auto', padding:'5px'}}>
+                  {selectedNumbers.map(n => (
+                    <span key={n} style={{width:'30px', height:'30px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'0.8rem', background:'var(--primary)', color:'white', borderRadius:'6px', fontWeight:'bold'}}>{n}</span>
+                  ))}
+                </div>
+                {selectedNumbers.length % 4 !== 0 && (
+                   <small style={{display:'block', marginTop:'5px', color:'var(--danger)', fontSize:'0.75rem'}}>Faltan {4 - (selectedNumbers.length % 4)} para completar un puesto.</small>
+                )}
+              </div>
               <form onSubmit={handlePurchase}>
                 <input type="text" className="form-input" placeholder="Nombre completo" value={name} onChange={e=>setName(e.target.value)} required style={{marginBottom:'10px'}}/>
                 <input type="tel" className="form-input" placeholder="WhatsApp" value={phone} onChange={e=>setPhone(e.target.value)} required style={{marginBottom:'15px'}}/>
-                <button type="submit" className="btn btn-primary" disabled={selectedNumbers.length%4!==0}>
+                <button type="submit" className="btn btn-primary" disabled={selectedNumbers.length%4!==0} style={{width:'100%', padding:'12px'}}>
                   Reservar {selectedNumbers.length/4} Puesto(s)
                 </button>
               </form>
@@ -149,11 +281,15 @@ export default function MobileApp() {
 
   return (
     <>
-      <header><div className="header-content container"><strong>🐾 Rifa Choco</strong></div></header>
+      <header><div className="header-content container" style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
+        <strong onClick={()=>navigate('/')} style={{cursor:'pointer'}}>🐾 Rifa Choco</strong>
+        <button className="btn btn-outline" onClick={()=>navigate('/comprar')} style={{fontSize:'0.75rem', padding:'5px 10px'}}>Comprar</button>
+      </div></header>
       {toast && <div className="toaster"><div className={`toast ${toast.type}`}>{toast.message}</div></div>}
       <Routes>
-        <Route path="/" element={<HomeView />} />
-        <Route path="/admin" element={<AdminView />} />
+        <Route path="/" element={<ConsultView />} />
+        <Route path="/comprar" element={<PurchaseView />} />
+        <Route path="/ventas" element={<AdminView />} />
       </Routes>
     </>
   );

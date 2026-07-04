@@ -34,6 +34,7 @@ export default function DesktopApp() {
   
   // UI State
   const [activeTab, setActiveTab] = useState(0);
+  const [consultNumber, setConsultNumber] = useState('');
 
   // Load from Firestore
   useEffect(() => {
@@ -588,11 +589,11 @@ export default function DesktopApp() {
 
       <header>
         <div className="container header-content">
-          <a href="#" className="logo">
+          <a href="#" className="logo" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
             <Heart fill="currentColor" /> Rifa por Choco
           </a>
-          <button className="btn btn-outline" onClick={() => navigate('/admin')} style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}>
-            Admin
+          <button className="btn btn-outline" onClick={() => navigate('/')} style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}>
+            Inicio
           </button>
         </div>
       </header>
@@ -878,11 +879,64 @@ export default function DesktopApp() {
       </>
   );
 
+  const consultView = (
+    <>
+      <header>
+        <div className="container header-content">
+          <a href="#" className="logo" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
+            <Heart fill="currentColor" /> Rifa por Choco
+          </a>
+          <button className="btn btn-primary" onClick={() => navigate('/comprar')} style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}>
+            Comprar Puestos
+          </button>
+        </div>
+      </header>
+      <main className="container" style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
+        <div className="glass-card" style={{ maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
+          <Search size={48} color="var(--primary)" style={{ margin: '0 auto 1rem' }} />
+          <h2 style={{ marginBottom: '1.5rem' }}>Consultar Número</h2>
+          <p style={{ color: 'var(--text-light)', marginBottom: '2rem' }}>
+            Ingresa un número de 3 cifras para verificar si está disponible o si ya fue vendido.
+          </p>
+          <div style={{ position: 'relative', maxWidth: '300px', margin: '0 auto 2rem' }}>
+            <input 
+              type="text" 
+              className="form-input" 
+              placeholder="Ej: 045"
+              value={consultNumber}
+              onChange={(e) => setConsultNumber(e.target.value)}
+              maxLength={3}
+              style={{ textAlign: 'center', fontSize: '1.5rem', padding: '1rem' }}
+            />
+          </div>
+          {consultNumber.length === 3 && (
+            <div style={{ padding: '1.5rem', borderRadius: '12px', background: soldNumbersList.includes(consultNumber) ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', border: `1px solid ${soldNumbersList.includes(consultNumber) ? 'var(--danger)' : 'var(--success)'}` }}>
+              {soldNumbersList.includes(consultNumber) ? (
+                <>
+                  <h3 style={{ color: 'var(--danger)', marginBottom: '0.5rem' }}>Número no disponible</h3>
+                  <p style={{ color: 'var(--text-light)' }}>El número {consultNumber} ya ha sido apartado.</p>
+                </>
+              ) : ALL_NUMBERS.includes(consultNumber) ? (
+                <>
+                  <h3 style={{ color: 'var(--success)', marginBottom: '0.5rem' }}>¡Número Disponible!</h3>
+                  <p style={{ color: 'var(--text-light)', marginBottom: '1.5rem' }}>El número {consultNumber} está libre.</p>
+                  <button className="btn btn-primary" onClick={() => navigate('/comprar')} style={{ width: '100%' }}>Ir a comprar</button>
+                </>
+              ) : (
+                <p style={{ color: 'var(--text-light)' }}>Ingresa un número válido entre 000 y 999.</p>
+              )}
+            </div>
+          )}
+        </div>
+      </main>
+    </>
+  );
+
   return (
     <Routes>
-      <Route path="/" element={homeView} />
+      <Route path="/" element={consultView} />
       <Route path="/comprar" element={homeView} />
-      <Route path="/admin" element={adminView} />
+      <Route path="/ventas" element={adminView} />
     </Routes>
   );
 }
