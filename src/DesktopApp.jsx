@@ -684,39 +684,7 @@ export default function DesktopApp() {
             </a>
           </div>
         </section>
-          </div>
-          
-          <div className="hero-content">
-            <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>
-              Ayudemos a <span className="gradient-text">Choco</span> a Mejorar
-            </h1>
-            <p style={{ fontSize: '1.25rem', color: 'var(--text-light)', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
-              Mi perrito Choco está enfermito y necesita de nuestra ayuda para solventar sus gastos veterinarios. ¡Participa en la rifa y gana mientras lo ayudas!
-            </p>
 
-            <div className="glass-card" style={{ maxWidth: '500px', margin: '0 auto 3rem', padding: '1.5rem' }}>
-              <h3 style={{ marginBottom: '0.5rem' }}>Meta de la Rifa</h3>
-              <p style={{ color: 'var(--text-light)', marginBottom: '1rem' }}>
-                La rifa juega el <strong>25 de Julio</strong>
-              </p>
-              
-              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontWeight: 'bold' }}>
-                <span>{ticketsSold} vendidos</span>
-                <span>250 en total</span>
-              </div>
-              <div className="progress-bar-container">
-                <div className="progress-bar" style={{ width: `${progressPercentage}%` }}></div>
-              </div>
-              <p style={{ fontSize: '0.875rem', color: 'var(--text-light)', marginTop: '1rem' }}>
-                Valor del puesto: <strong style={{ color: 'var(--primary)', fontSize: '1.2rem' }}>$10.000</strong> (Incluye 4 números)
-              </p>
-            </div>
-
-            <a href="#comprar" className="btn btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.125rem' }}>
-              Comprar mi Puesto <ChevronRight />
-            </a>
-          </div>
-        </section>
 
         <section id="comprar" className="container" style={{ paddingBottom: '4rem' }}>
           <div className="glass-card">
