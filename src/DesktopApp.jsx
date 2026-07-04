@@ -343,6 +343,216 @@ export default function DesktopApp() {
     searchNumber === '' || ticket.numbers.includes(searchNumber)
   );
 
+  const purchaseForm = (
+<div style={{ animation: 'fadeIn 0.3s', marginTop: '2rem' }}>
+                <h3 style={{ marginBottom: '2rem', fontSize: '1.5rem' }}>Comprar Puestos</h3>
+                <div style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', background: 'var(--surface)', padding: '0.5rem', borderRadius: '12px', border: '1px solid var(--border)', flexWrap: 'wrap' }}>
+                  <button 
+                    onClick={() => setSelectionMode('manual')}
+                    style={{ flex: 1, minWidth: '120px', padding: '0.75rem', borderRadius: '8px', border: 'none', background: selectionMode === 'manual' ? 'var(--primary)' : 'transparent', color: selectionMode === 'manual' ? 'white' : 'var(--text-color)', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s' }}
+                  >
+                    Elegir Manualmente
+                  </button>
+                  <button 
+                    onClick={() => setSelectionMode('text')}
+                    style={{ flex: 1, minWidth: '120px', padding: '0.75rem', borderRadius: '8px', border: 'none', background: selectionMode === 'text' ? 'var(--primary)' : 'transparent', color: selectionMode === 'text' ? 'white' : 'var(--text-color)', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s' }}
+                  >
+                    Ingresar por Texto
+                  </button>
+                  <button 
+                    onClick={() => setSelectionMode('auto')}
+                    style={{ flex: 1, minWidth: '120px', padding: '0.75rem', borderRadius: '8px', border: 'none', background: selectionMode === 'auto' ? 'var(--primary)' : 'transparent', color: selectionMode === 'auto' ? 'white' : 'var(--text-color)', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s' }}
+                  >
+                    Selección Automática
+                  </button>
+                </div>
+
+                {selectionMode === 'auto' && (
+                  <div style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <Ticket size={20} className="gradient-text" /> Compra Rápida de Múltiples Puestos
+                    </h3>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1, minWidth: '200px' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>¿Cuántos puestos deseas comprar?</label>
+                        <input 
+                          type="number" 
+                          min="1" 
+                          max="250"
+                          value={autoTicketsCount}
+                          onChange={(e) => setAutoTicketsCount(parseInt(e.target.value) || 1)}
+                          style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-color)', color: 'var(--text-color)', fontSize: '1rem' }}
+                        />
+                      </div>
+                      <button 
+                        onClick={handleAutoGenerate}
+                        className="btn btn-primary"
+                        style={{ padding: '0.75rem 1.5rem', height: '46px', whiteSpace: 'nowrap' }}
+                      >
+                        Generar {autoTicketsCount * 4} Números al Azar
+                      </button>
+                    </div>
+                    <p style={{ color: 'var(--text-light)', fontSize: '0.875rem' }}>
+                      Pagarás ${(autoTicketsCount * 10000).toLocaleString()} y obtendrás {autoTicketsCount * 4} números aleatorios de la rifa.
+                    </p>
+                  </div>
+                )}
+
+                {selectionMode === 'text' && (
+                  <div style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
+                      <Ticket size={20} className="gradient-text" /> Escribe tus números
+                    </h3>
+                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
+                      <div style={{ flex: 1, minWidth: '200px' }}>
+                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Ingresa los números separados por espacio o coma (ej: 015, 45, 102)</label>
+                        <input 
+                          type="text" 
+                          value={manualInput}
+                          onChange={(e) => setManualInput(e.target.value)}
+                          placeholder="Ej: 005, 12, 450"
+                          style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-color)', color: 'var(--text-color)', fontSize: '1rem' }}
+                          onKeyDown={(e) => {
+                            if(e.key === 'Enter') {
+                              e.preventDefault();
+                              handleManualInputSubmit();
+                            }
+                          }}
+                        />
+                      </div>
+                      <button 
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleManualInputSubmit();
+                        }}
+                        className="btn btn-primary"
+                        style={{ padding: '0.75rem 1.5rem', height: '46px', whiteSpace: 'nowrap', alignSelf: 'flex-end' }}
+                      >
+                        Verificar y Agregar
+                      </button>
+                    </div>
+                  </div>
+                )}
+
+                <div style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: '1px solid var(--border)' }}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                      <Ticket size={20} className="gradient-text" /> Tus números seleccionados
+                    </h3>
+                    <div style={{ textAlign: 'right' }}>
+                      <span style={{ fontWeight: 'bold', color: selectedNumbers.length > 0 && selectedNumbers.length % 4 === 0 ? 'var(--success)' : 'var(--text-light)', display: 'block' }}>
+                        {selectedNumbers.length} números ({Math.floor(selectedNumbers.length / 4)} puestos)
+                      </span>
+                      {selectedNumbers.length % 4 !== 0 && selectedNumbers.length > 0 && (
+                        <span style={{ fontSize: '0.75rem', color: 'var(--danger)' }}>
+                          Faltan {4 - (selectedNumbers.length % 4)} para completar el puesto
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                  
+                  <div style={{ display: 'flex', gap: '1rem', minHeight: '60px', flexWrap: 'wrap' }}>
+                    {selectedNumbers.length === 0 ? (
+                      <div style={{ width: '100%', textAlign: 'center', color: 'var(--text-light)', padding: '1rem 0' }}>
+                        Aún no has seleccionado números
+                      </div>
+                    ) : (
+                      selectedNumbers.map((num, i) => (
+                        <div key={num} style={{ 
+                          width: '60px',
+                          height: '60px',
+                          display: 'flex', 
+                          alignItems: 'center', 
+                          justifyContent: 'center', 
+                          background: 'var(--primary)',
+                          color: 'white',
+                          borderRadius: '12px',
+                          fontSize: '1.25rem',
+                          fontWeight: 'bold'
+                        }}>
+                          {num}
+                        </div>
+                      ))
+                    )}
+                  </div>
+                </div>
+
+                {selectionMode === 'manual' && (
+                  <>
+                    <h3 style={{ marginBottom: '1rem' }}>1. Selecciona tus números (Haz clic)</h3>
+                    {renderTabs()}
+                    {renderNumbers(false)}
+                  </>
+                )}
+
+                <div style={{ marginTop: '3rem' }}>
+                  <h3 style={{ marginBottom: '1.5rem' }}>2. Completa tus datos</h3>
+                  <form onSubmit={handlePurchase}>
+                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
+                      <div className="form-group">
+                        <label className="form-label">Nombre</label>
+                        <div style={{ position: 'relative' }}>
+                          <User size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
+                          <input 
+                            type="text" 
+                            className="form-input" 
+                            style={{ paddingLeft: '2.5rem' }} 
+                            placeholder="Tu nombre"
+                            value={name}
+                            onChange={(e) => setName(e.target.value)}
+                            required
+                          />
+                        </div>
+                      </div>
+                      <div className="form-group">
+                        <label className="form-label">Apellido</label>
+                        <input 
+                          type="text" 
+                          className="form-input" 
+                          placeholder="Tu apellido"
+                          value={lastName}
+                          onChange={(e) => setLastName(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="form-group">
+                      <label className="form-label">Teléfono / WhatsApp</label>
+                      <div style={{ position: 'relative' }}>
+                        <Phone size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
+                        <input 
+                          type="tel" 
+                          className="form-input" 
+                          style={{ paddingLeft: '2.5rem' }} 
+                          placeholder="Tu número de contacto"
+                          value={phone}
+                          onChange={(e) => setPhone(e.target.value)}
+                          required
+                        />
+                      </div>
+                    </div>
+
+                    <button 
+                      type="submit" 
+                      className="btn btn-primary" 
+                      style={{ width: '100%', padding: '1rem', fontSize: '1.125rem', marginTop: '1rem' }}
+                      disabled={selectedNumbers.length === 0 || selectedNumbers.length % 4 !== 0}
+                    >
+                      <Save size={20} />
+                      Registrar {Math.floor(selectedNumbers.length / 4)} Puesto(s) (${(Math.floor(selectedNumbers.length / 4) * 10000).toLocaleString()})
+                    </button>
+                    {(selectedNumbers.length === 0 || selectedNumbers.length % 4 !== 0) && (
+                      <p style={{ textAlign: 'center', color: 'var(--danger)', marginTop: '0.5rem', fontSize: '0.875rem' }}>
+                        * Selecciona números en grupos de 4 para registrar tus puestos.
+                      </p>
+                    )}
+                  </form>
+                </div>
+              </div>
+
+  );
+
   const adminView = (
       <>
         <header>
@@ -620,212 +830,7 @@ export default function DesktopApp() {
             </div>
             </>
             ) : (
-              <div style={{ animation: 'fadeIn 0.3s', marginTop: '2rem' }}>
-                <h3 style={{ marginBottom: '2rem', fontSize: '1.5rem' }}>Registrar Venta Directa</h3>
-                <div style={{ marginBottom: '2rem', display: 'flex', gap: '1rem', background: 'var(--surface)', padding: '0.5rem', borderRadius: '12px', border: '1px solid var(--border)', flexWrap: 'wrap' }}>
-                  <button 
-                    onClick={() => setSelectionMode('manual')}
-                    style={{ flex: 1, minWidth: '120px', padding: '0.75rem', borderRadius: '8px', border: 'none', background: selectionMode === 'manual' ? 'var(--primary)' : 'transparent', color: selectionMode === 'manual' ? 'white' : 'var(--text-color)', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s' }}
-                  >
-                    Elegir Manualmente
-                  </button>
-                  <button 
-                    onClick={() => setSelectionMode('text')}
-                    style={{ flex: 1, minWidth: '120px', padding: '0.75rem', borderRadius: '8px', border: 'none', background: selectionMode === 'text' ? 'var(--primary)' : 'transparent', color: selectionMode === 'text' ? 'white' : 'var(--text-color)', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s' }}
-                  >
-                    Ingresar por Texto
-                  </button>
-                  <button 
-                    onClick={() => setSelectionMode('auto')}
-                    style={{ flex: 1, minWidth: '120px', padding: '0.75rem', borderRadius: '8px', border: 'none', background: selectionMode === 'auto' ? 'var(--primary)' : 'transparent', color: selectionMode === 'auto' ? 'white' : 'var(--text-color)', fontWeight: 'bold', cursor: 'pointer', transition: 'all 0.3s' }}
-                  >
-                    Selección Automática
-                  </button>
-                </div>
-
-                {selectionMode === 'auto' && (
-                  <div style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <Ticket size={20} className="gradient-text" /> Compra Rápida de Múltiples Puestos
-                    </h3>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-end', flexWrap: 'wrap' }}>
-                      <div style={{ flex: 1, minWidth: '200px' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>¿Cuántos puestos deseas comprar?</label>
-                        <input 
-                          type="number" 
-                          min="1" 
-                          max="250"
-                          value={autoTicketsCount}
-                          onChange={(e) => setAutoTicketsCount(parseInt(e.target.value) || 1)}
-                          style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-color)', color: 'var(--text-color)', fontSize: '1rem' }}
-                        />
-                      </div>
-                      <button 
-                        onClick={handleAutoGenerate}
-                        className="btn btn-primary"
-                        style={{ padding: '0.75rem 1.5rem', height: '46px', whiteSpace: 'nowrap' }}
-                      >
-                        Generar {autoTicketsCount * 4} Números al Azar
-                      </button>
-                    </div>
-                    <p style={{ color: 'var(--text-light)', fontSize: '0.875rem' }}>
-                      Pagarás ${(autoTicketsCount * 10000).toLocaleString()} y obtendrás {autoTicketsCount * 4} números aleatorios de la rifa.
-                    </p>
-                  </div>
-                )}
-
-                {selectionMode === 'text' && (
-                  <div style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: '1px solid var(--border)', display: 'flex', flexDirection: 'column', gap: '1rem' }}>
-                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', marginBottom: '0.5rem' }}>
-                      <Ticket size={20} className="gradient-text" /> Escribe tus números
-                    </h3>
-                    <div style={{ display: 'flex', gap: '1rem', alignItems: 'flex-start', flexWrap: 'wrap' }}>
-                      <div style={{ flex: 1, minWidth: '200px' }}>
-                        <label style={{ display: 'block', marginBottom: '0.5rem', fontWeight: '500' }}>Ingresa los números separados por espacio o coma (ej: 015, 45, 102)</label>
-                        <input 
-                          type="text" 
-                          value={manualInput}
-                          onChange={(e) => setManualInput(e.target.value)}
-                          placeholder="Ej: 005, 12, 450"
-                          style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', border: '1px solid var(--border)', background: 'var(--bg-color)', color: 'var(--text-color)', fontSize: '1rem' }}
-                          onKeyDown={(e) => {
-                            if(e.key === 'Enter') {
-                              e.preventDefault();
-                              handleManualInputSubmit();
-                            }
-                          }}
-                        />
-                      </div>
-                      <button 
-                        onClick={(e) => {
-                          e.preventDefault();
-                          handleManualInputSubmit();
-                        }}
-                        className="btn btn-primary"
-                        style={{ padding: '0.75rem 1.5rem', height: '46px', whiteSpace: 'nowrap', alignSelf: 'flex-end' }}
-                      >
-                        Verificar y Agregar
-                      </button>
-                    </div>
-                  </div>
-                )}
-
-                <div style={{ background: 'var(--surface)', padding: '1.5rem', borderRadius: '16px', marginBottom: '2rem', border: '1px solid var(--border)' }}>
-                  <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-                    <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
-                      <Ticket size={20} className="gradient-text" /> Tus números seleccionados
-                    </h3>
-                    <div style={{ textAlign: 'right' }}>
-                      <span style={{ fontWeight: 'bold', color: selectedNumbers.length > 0 && selectedNumbers.length % 4 === 0 ? 'var(--success)' : 'var(--text-light)', display: 'block' }}>
-                        {selectedNumbers.length} números ({Math.floor(selectedNumbers.length / 4)} puestos)
-                      </span>
-                      {selectedNumbers.length % 4 !== 0 && selectedNumbers.length > 0 && (
-                        <span style={{ fontSize: '0.75rem', color: 'var(--danger)' }}>
-                          Faltan {4 - (selectedNumbers.length % 4)} para completar el puesto
-                        </span>
-                      )}
-                    </div>
-                  </div>
-                  
-                  <div style={{ display: 'flex', gap: '1rem', minHeight: '60px', flexWrap: 'wrap' }}>
-                    {selectedNumbers.length === 0 ? (
-                      <div style={{ width: '100%', textAlign: 'center', color: 'var(--text-light)', padding: '1rem 0' }}>
-                        Aún no has seleccionado números
-                      </div>
-                    ) : (
-                      selectedNumbers.map((num, i) => (
-                        <div key={num} style={{ 
-                          width: '60px',
-                          height: '60px',
-                          display: 'flex', 
-                          alignItems: 'center', 
-                          justifyContent: 'center', 
-                          background: 'var(--primary)',
-                          color: 'white',
-                          borderRadius: '12px',
-                          fontSize: '1.25rem',
-                          fontWeight: 'bold'
-                        }}>
-                          {num}
-                        </div>
-                      ))
-                    )}
-                  </div>
-                </div>
-
-                {selectionMode === 'manual' && (
-                  <>
-                    <h3 style={{ marginBottom: '1rem' }}>1. Selecciona tus números (Haz clic)</h3>
-                    {renderTabs()}
-                    {renderNumbers(false)}
-                  </>
-                )}
-
-                <div style={{ marginTop: '3rem' }}>
-                  <h3 style={{ marginBottom: '1.5rem' }}>2. Completa tus datos</h3>
-                  <form onSubmit={handlePurchase}>
-                    <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1rem' }}>
-                      <div className="form-group">
-                        <label className="form-label">Nombre</label>
-                        <div style={{ position: 'relative' }}>
-                          <User size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
-                          <input 
-                            type="text" 
-                            className="form-input" 
-                            style={{ paddingLeft: '2.5rem' }} 
-                            placeholder="Tu nombre"
-                            value={name}
-                            onChange={(e) => setName(e.target.value)}
-                            required
-                          />
-                        </div>
-                      </div>
-                      <div className="form-group">
-                        <label className="form-label">Apellido</label>
-                        <input 
-                          type="text" 
-                          className="form-input" 
-                          placeholder="Tu apellido"
-                          value={lastName}
-                          onChange={(e) => setLastName(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-                    
-                    <div className="form-group">
-                      <label className="form-label">Teléfono / WhatsApp</label>
-                      <div style={{ position: 'relative' }}>
-                        <Phone size={18} style={{ position: 'absolute', left: '1rem', top: '50%', transform: 'translateY(-50%)', color: 'var(--text-light)' }} />
-                        <input 
-                          type="tel" 
-                          className="form-input" 
-                          style={{ paddingLeft: '2.5rem' }} 
-                          placeholder="Tu número de contacto"
-                          value={phone}
-                          onChange={(e) => setPhone(e.target.value)}
-                          required
-                        />
-                      </div>
-                    </div>
-
-                    <button 
-                      type="submit" 
-                      className="btn btn-primary" 
-                      style={{ width: '100%', padding: '1rem', fontSize: '1.125rem', marginTop: '1rem' }}
-                      disabled={selectedNumbers.length === 0 || selectedNumbers.length % 4 !== 0}
-                    >
-                      <Save size={20} />
-                      Registrar {Math.floor(selectedNumbers.length / 4)} Puesto(s) (${(Math.floor(selectedNumbers.length / 4) * 10000).toLocaleString()})
-                    </button>
-                    {(selectedNumbers.length === 0 || selectedNumbers.length % 4 !== 0) && (
-                      <p style={{ textAlign: 'center', color: 'var(--danger)', marginTop: '0.5rem', fontSize: '0.875rem' }}>
-                        * Selecciona números en grupos de 4 para registrar tus puestos.
-                      </p>
-                    )}
-                  </form>
-                </div>
-              </div>
+              {purchaseForm}
             )}
           </div>
         </main>
@@ -975,30 +980,14 @@ export default function DesktopApp() {
 
 
         <section id="comprar" className="container" style={{ paddingBottom: '4rem' }}>
-          <div className="glass-card">
-            <h2 style={{ fontSize: '2rem', marginBottom: '1rem', textAlign: 'center' }}>
-              Números Disponibles
+          <div className="glass-card" style={{ padding: '2rem' }}>
+            <h2 style={{ fontSize: '2.5rem', marginBottom: '1rem', textAlign: 'center', color: 'var(--primary)' }}>
+              Compra tu Puesto Aquí
             </h2>
             <p style={{ textAlign: 'center', color: 'var(--text-light)', marginBottom: '2rem', fontSize: '1.125rem' }}>
-              Consulta aquí las tablas para ver qué números están libres. Los marcados en rojo ya fueron apartados.
+              Elige tus números y paga directamente con Nequi de forma rápida y segura.
             </p>
-            
-            <div style={{ marginBottom: '2rem', display: 'flex', justifyContent: 'center' }}>
-              <button 
-                onClick={() => {
-                  window.open('https://wa.me/573015085806?text=¡Hola! Me gustaría comprar puestos para la rifa de Choco 🐾', '_blank');
-                }}
-                className="btn btn-primary"
-                style={{ padding: '1rem 2rem', fontSize: '1.2rem', display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#25D366', borderColor: '#25D366' }}
-              >
-                <Phone size={20} /> Comprar por WhatsApp
-              </button>
-            </div>
-
-            <div>
-              {renderTabs()}
-              {renderNumbers()}
-            </div>
+            {purchaseForm}
           </div>
         </section>
       </main>
