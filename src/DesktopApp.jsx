@@ -646,36 +646,20 @@ export default function DesktopApp() {
               </p>
             </div>
 
-            <div className="glass-card" style={{ maxWidth: '500px', margin: '0 auto 3rem', padding: '1.5rem', border: '1px solid var(--primary)' }}>
-              <h3 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}><Search size={20}/> Consultar Número</h3>
-              <p style={{ color: 'var(--text-light)', marginBottom: '1rem', fontSize: '0.9rem' }}>Verifica si un número está disponible o ya fue vendido.</p>
-              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '1rem' }}>
-                <input 
-                  type="text" 
-                  className="form-input" 
-                  placeholder="Ej: 045"
-                  value={consultNumber}
-                  onChange={(e) => setConsultNumber(e.target.value)}
-                  maxLength={3}
-                  style={{ maxWidth: '150px', textAlign: 'center', fontSize: '1.2rem' }}
-                />
-              </div>
+            <div style={{ maxWidth: '500px', margin: '0 auto 2rem', background: 'var(--surface)', borderRadius: '50px', padding: '5px 15px', display: 'flex', alignItems: 'center', border: '1px solid var(--border)' }}>
+              <Search size={18} color="var(--primary)" style={{ marginRight: '10px' }} />
+              <input 
+                type="text" 
+                placeholder="Consultar número (ej: 045)"
+                value={consultNumber}
+                onChange={(e) => setConsultNumber(e.target.value)}
+                maxLength={3}
+                style={{ background: 'transparent', border: 'none', color: 'var(--text-color)', width: '100%', outline: 'none', fontSize: '1rem' }}
+              />
               {consultNumber.length === 3 && (
-                <div style={{ padding: '1rem', borderRadius: '8px', background: soldNumbersList.includes(consultNumber) ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', border: `1px solid ${soldNumbersList.includes(consultNumber) ? 'var(--danger)' : 'var(--success)'}` }}>
-                  {soldNumbersList.includes(consultNumber) ? (
-                    <>
-                      <strong style={{ color: 'var(--danger)' }}>No disponible</strong>
-                      <p style={{ color: 'var(--text-light)', margin: '5px 0 0', fontSize: '0.9rem' }}>El número {consultNumber} ya ha sido apartado.</p>
-                    </>
-                  ) : ALL_NUMBERS.includes(consultNumber) ? (
-                    <>
-                      <strong style={{ color: 'var(--success)' }}>¡Disponible!</strong>
-                      <p style={{ color: 'var(--text-light)', margin: '5px 0 0', fontSize: '0.9rem' }}>El número {consultNumber} está libre.</p>
-                    </>
-                  ) : (
-                    <p style={{ color: 'var(--text-light)', margin: 0, fontSize: '0.9rem' }}>Número inválido.</p>
-                  )}
-                </div>
+                <span style={{ marginLeft: '10px', fontSize: '0.85rem', fontWeight: 'bold', color: soldNumbersList.includes(consultNumber) ? 'var(--danger)' : ALL_NUMBERS.includes(consultNumber) ? 'var(--success)' : 'var(--text-light)' }}>
+                  {soldNumbersList.includes(consultNumber) ? 'Ocupado' : ALL_NUMBERS.includes(consultNumber) ? 'Libre' : 'Inválido'}
+                </span>
               )}
             </div>
 

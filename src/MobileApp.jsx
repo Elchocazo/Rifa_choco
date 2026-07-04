@@ -166,34 +166,20 @@ export default function MobileApp() {
             </div>
           </section>
 
-          <div className="glass-card" style={{marginBottom:'15px', textAlign:'center', border: '1px solid var(--primary)'}}>
-            <h3 style={{marginBottom:'10px', display:'flex', alignItems:'center', justifyContent:'center', gap:'5px'}}><Search size={18}/> Consultar Número</h3>
-            <p style={{color:'var(--text-light)', marginBottom:'15px', fontSize:'0.85rem'}}>Verifica si un número está disponible o vendido.</p>
+          <div style={{ margin: '0 auto 15px', background: 'var(--surface)', borderRadius: '50px', padding: '5px 15px', display: 'flex', alignItems: 'center', border: '1px solid var(--border)' }}>
+            <Search size={16} color="var(--primary)" style={{ marginRight: '8px' }} />
             <input 
               type="text" 
-              className="form-input" 
-              placeholder="Ej: 045"
+              placeholder="Consultar (ej: 045)"
               value={consultNumber}
               onChange={(e) => setConsultNumber(e.target.value)}
               maxLength={3}
-              style={{textAlign:'center', fontSize:'1.2rem', marginBottom:'15px', maxWidth:'150px', margin:'0 auto 15px'}}
+              style={{ background: 'transparent', border: 'none', color: 'var(--text-color)', width: '100%', outline: 'none', fontSize: '0.9rem' }}
             />
             {consultNumber.length === 3 && (
-              <div style={{padding:'10px', borderRadius:'8px', background: soldNumbersList.includes(consultNumber) ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)'}}>
-                {soldNumbersList.includes(consultNumber) ? (
-                  <>
-                    <strong style={{color:'var(--danger)'}}>No disponible</strong>
-                    <small style={{color:'var(--text-light)', display:'block'}}>El {consultNumber} ya fue apartado.</small>
-                  </>
-                ) : ALL_NUMBERS.includes(consultNumber) ? (
-                  <>
-                    <strong style={{color:'var(--success)'}}>¡Disponible!</strong>
-                    <small style={{color:'var(--text-light)', display:'block'}}>El {consultNumber} está libre.</small>
-                  </>
-                ) : (
-                  <small style={{color:'var(--text-light)'}}>Número inválido</small>
-                )}
-              </div>
+              <span style={{ marginLeft: '10px', fontSize: '0.8rem', fontWeight: 'bold', color: soldNumbersList.includes(consultNumber) ? 'var(--danger)' : ALL_NUMBERS.includes(consultNumber) ? 'var(--success)' : 'var(--text-light)' }}>
+                {soldNumbersList.includes(consultNumber) ? 'Ocupado' : ALL_NUMBERS.includes(consultNumber) ? 'Libre' : 'Inválido'}
+              </span>
             )}
           </div>
 
