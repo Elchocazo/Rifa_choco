@@ -15,6 +15,17 @@ export default function DesktopApp() {
   const [expenses, setExpenses] = useState([]);
   const [selectedNumbers, setSelectedNumbers] = useState([]);
   
+  // Photos carousel state
+  const [photoIndex, setPhotoIndex] = useState(0);
+  const photos = [chocoImg, '/choco_photos/choco1.png', '/choco_photos/choco2.png', '/choco_photos/choco3.png', '/choco_photos/choco4.png', '/choco_photos/choco5.png'];
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setPhotoIndex(prev => (prev + 1) % photos.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+
   // Admin Search State
   const [searchNumber, setSearchNumber] = useState('');
 
@@ -848,7 +859,7 @@ export default function DesktopApp() {
       <main>
         <section className="hero container animate-fade-in">
           <div className="hero-image-container">
-            <img src={chocoImg} alt="Choco el perrito" className="hero-image" />
+            <img src={photos[photoIndex]} alt="Choco el perrito" className="hero-image" style={{ transition: 'all 0.5s ease-in-out' }} />
           </div>
           
           <div className="hero-content">
