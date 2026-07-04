@@ -598,27 +598,78 @@ export default function DesktopApp() {
         </div>
       </header>
 
-      {purchaseSuccess ? (
-        <div className="container animate-fade-in" style={{paddingTop:'4rem', paddingBottom:'4rem'}}>
-          <div className="glass-card" style={{textAlign:'center', maxWidth:'500px', margin:'0 auto'}}>
-            <CheckCircle2 color="var(--success)" size={64} style={{margin:'0 auto 20px'}}/>
-            <h2 style={{marginBottom:'10px'}}>¡Números Apartados!</h2>
-            <p style={{color:'var(--text-light)', marginBottom:'25px'}}>Para confirmar tu compra, envía el comprobante por WhatsApp.</p>
-            <button className="btn btn-primary" style={{width:'100%', marginBottom:'15px', padding:'1rem', fontSize:'1.1rem'}} onClick={() => {
-              const msg = `¡Hola! Acabo de reservar números para la Rifa de Choco 🐾\n\n*Nombre:* ${purchaseSuccess.name}\n*Números:* ${purchaseSuccess.numbers.join(', ')}\n*Total:* $${(purchaseSuccess.tickets * 10000).toLocaleString()}\n\n¿Me podrías confirmar los datos de pago?`;
-              window.open(`https://wa.me/573015085806?text=${encodeURIComponent(msg)}`, '_blank');
-              setPurchaseSuccess(null);
-            }}>
-              <Phone size={18}/> Enviar Comprobante por WhatsApp
-            </button>
-            <button className="btn btn-outline" style={{width:'100%'}} onClick={()=>setPurchaseSuccess(null)}>Cerrar</button>
-          </div>
         </div>
       ) : (
       <main>
         <section className="hero container animate-fade-in">
           <div className="hero-image-container">
             <img src={chocoImg} alt="Choco el perrito" className="hero-image" />
+          </div>
+          
+          <div className="hero-content">
+            <h1 style={{ fontSize: '3rem', marginBottom: '1rem' }}>
+              Ayudemos a <span className="gradient-text">Choco</span> a Mejorar
+            </h1>
+            <p style={{ fontSize: '1.25rem', color: 'var(--text-light)', marginBottom: '2rem', maxWidth: '600px', margin: '0 auto 2rem' }}>
+              Mi perrito Choco está enfermito y necesita de nuestra ayuda para solventar sus gastos veterinarios. ¡Participa en la rifa y gana mientras lo ayudas!
+            </p>
+
+            <div className="glass-card" style={{ maxWidth: '500px', margin: '0 auto 3rem', padding: '1.5rem' }}>
+              <h3 style={{ marginBottom: '0.5rem' }}>Meta de la Rifa</h3>
+              <p style={{ color: 'var(--text-light)', marginBottom: '1rem' }}>
+                La rifa juega el <strong>25 de Julio</strong>
+              </p>
+              
+              <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontWeight: 'bold' }}>
+                <span>{ticketsSold} vendidos</span>
+                <span>250 en total</span>
+              </div>
+              <div className="progress-bar-container">
+                <div className="progress-bar" style={{ width: `${progressPercentage}%` }}></div>
+              </div>
+              <p style={{ fontSize: '0.875rem', color: 'var(--text-light)', marginTop: '1rem' }}>
+                Valor del puesto: <strong style={{ color: 'var(--primary)', fontSize: '1.2rem' }}>$10.000</strong> (Incluye 4 números)
+              </p>
+            </div>
+
+            <div className="glass-card" style={{ maxWidth: '500px', margin: '0 auto 3rem', padding: '1.5rem', border: '1px solid var(--primary)' }}>
+              <h3 style={{ marginBottom: '1rem', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '10px' }}><Search size={20}/> Consultar Número</h3>
+              <p style={{ color: 'var(--text-light)', marginBottom: '1rem', fontSize: '0.9rem' }}>Verifica si un número está disponible o ya fue vendido.</p>
+              <div style={{ display: 'flex', gap: '10px', justifyContent: 'center', marginBottom: '1rem' }}>
+                <input 
+                  type="text" 
+                  className="form-input" 
+                  placeholder="Ej: 045"
+                  value={consultNumber}
+                  onChange={(e) => setConsultNumber(e.target.value)}
+                  maxLength={3}
+                  style={{ maxWidth: '150px', textAlign: 'center', fontSize: '1.2rem' }}
+                />
+              </div>
+              {consultNumber.length === 3 && (
+                <div style={{ padding: '1rem', borderRadius: '8px', background: soldNumbersList.includes(consultNumber) ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', border: `1px solid ${soldNumbersList.includes(consultNumber) ? 'var(--danger)' : 'var(--success)'}` }}>
+                  {soldNumbersList.includes(consultNumber) ? (
+                    <>
+                      <strong style={{ color: 'var(--danger)' }}>No disponible</strong>
+                      <p style={{ color: 'var(--text-light)', margin: '5px 0 0', fontSize: '0.9rem' }}>El número {consultNumber} ya ha sido apartado.</p>
+                    </>
+                  ) : ALL_NUMBERS.includes(consultNumber) ? (
+                    <>
+                      <strong style={{ color: 'var(--success)' }}>¡Disponible!</strong>
+                      <p style={{ color: 'var(--text-light)', margin: '5px 0 0', fontSize: '0.9rem' }}>El número {consultNumber} está libre.</p>
+                    </>
+                  ) : (
+                    <p style={{ color: 'var(--text-light)', margin: 0, fontSize: '0.9rem' }}>Número inválido.</p>
+                  )}
+                </div>
+              )}
+            </div>
+
+            <a href="#comprar" className="btn btn-primary" style={{ padding: '1rem 2rem', fontSize: '1.125rem' }}>
+              Comprar mi Puesto <ChevronRight />
+            </a>
+          </div>
+        </section>
           </div>
           
           <div className="hero-content">
@@ -879,63 +930,9 @@ export default function DesktopApp() {
       </>
   );
 
-  const consultView = (
-    <>
-      <header>
-        <div className="container header-content">
-          <a href="#" className="logo" onClick={(e) => { e.preventDefault(); navigate('/'); }}>
-            <Heart fill="currentColor" /> Rifa por Choco
-          </a>
-          <button className="btn btn-primary" onClick={() => navigate('/comprar')} style={{ fontSize: '0.875rem', padding: '0.5rem 1rem' }}>
-            Comprar Puestos
-          </button>
-        </div>
-      </header>
-      <main className="container" style={{ paddingTop: '4rem', paddingBottom: '4rem' }}>
-        <div className="glass-card" style={{ maxWidth: '500px', margin: '0 auto', textAlign: 'center' }}>
-          <Search size={48} color="var(--primary)" style={{ margin: '0 auto 1rem' }} />
-          <h2 style={{ marginBottom: '1.5rem' }}>Consultar Número</h2>
-          <p style={{ color: 'var(--text-light)', marginBottom: '2rem' }}>
-            Ingresa un número de 3 cifras para verificar si está disponible o si ya fue vendido.
-          </p>
-          <div style={{ position: 'relative', maxWidth: '300px', margin: '0 auto 2rem' }}>
-            <input 
-              type="text" 
-              className="form-input" 
-              placeholder="Ej: 045"
-              value={consultNumber}
-              onChange={(e) => setConsultNumber(e.target.value)}
-              maxLength={3}
-              style={{ textAlign: 'center', fontSize: '1.5rem', padding: '1rem' }}
-            />
-          </div>
-          {consultNumber.length === 3 && (
-            <div style={{ padding: '1.5rem', borderRadius: '12px', background: soldNumbersList.includes(consultNumber) ? 'rgba(239, 68, 68, 0.1)' : 'rgba(16, 185, 129, 0.1)', border: `1px solid ${soldNumbersList.includes(consultNumber) ? 'var(--danger)' : 'var(--success)'}` }}>
-              {soldNumbersList.includes(consultNumber) ? (
-                <>
-                  <h3 style={{ color: 'var(--danger)', marginBottom: '0.5rem' }}>Número no disponible</h3>
-                  <p style={{ color: 'var(--text-light)' }}>El número {consultNumber} ya ha sido apartado.</p>
-                </>
-              ) : ALL_NUMBERS.includes(consultNumber) ? (
-                <>
-                  <h3 style={{ color: 'var(--success)', marginBottom: '0.5rem' }}>¡Número Disponible!</h3>
-                  <p style={{ color: 'var(--text-light)', marginBottom: '1.5rem' }}>El número {consultNumber} está libre.</p>
-                  <button className="btn btn-primary" onClick={() => navigate('/comprar')} style={{ width: '100%' }}>Ir a comprar</button>
-                </>
-              ) : (
-                <p style={{ color: 'var(--text-light)' }}>Ingresa un número válido entre 000 y 999.</p>
-              )}
-            </div>
-          )}
-        </div>
-      </main>
-    </>
-  );
-
   return (
     <Routes>
-      <Route path="/" element={consultView} />
-      <Route path="/comprar" element={homeView} />
+      <Route path="/" element={homeView} />
       <Route path="/ventas" element={adminView} />
     </Routes>
   );

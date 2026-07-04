@@ -139,44 +139,7 @@ export default function MobileApp() {
     </div>
   );
 
-  const ConsultView = () => (
-    <div className="container animate-fade-in" style={{paddingTop:'2rem'}}>
-      <div className="glass-card" style={{textAlign:'center'}}>
-        <Search size={40} color="var(--primary)" style={{margin:'0 auto 10px'}}/>
-        <h2 style={{marginBottom:'10px'}}>Consultar Número</h2>
-        <p style={{color:'var(--text-light)', marginBottom:'20px', fontSize:'0.9rem'}}>Verifica si un número está disponible o vendido.</p>
-        <input 
-          type="text" 
-          className="form-input" 
-          placeholder="Ej: 045"
-          value={consultNumber}
-          onChange={(e) => setConsultNumber(e.target.value)}
-          maxLength={3}
-          style={{textAlign:'center', fontSize:'1.2rem', marginBottom:'20px'}}
-        />
-        {consultNumber.length === 3 && (
-          <div style={{padding:'15px', borderRadius:'10px', background: soldNumbersList.includes(consultNumber) ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)'}}>
-            {soldNumbersList.includes(consultNumber) ? (
-              <>
-                <h4 style={{color:'var(--danger)', margin:0}}>No disponible</h4>
-                <small style={{color:'var(--text-light)'}}>El {consultNumber} ya fue apartado.</small>
-              </>
-            ) : ALL_NUMBERS.includes(consultNumber) ? (
-              <>
-                <h4 style={{color:'var(--success)', margin:0}}>¡Disponible!</h4>
-                <small style={{color:'var(--text-light)', display:'block', marginBottom:'10px'}}>El {consultNumber} está libre.</small>
-                <button className="btn btn-primary" onClick={()=>navigate('/comprar')} style={{width:'100%'}}>Comprar</button>
-              </>
-            ) : (
-              <small style={{color:'var(--text-light)'}}>Número inválido</small>
-            )}
-          </div>
-        )}
-      </div>
-    </div>
-  );
-
-  const PurchaseView = () => (
+  const HomeView = () => (
     <div className="container animate-fade-in">
       {purchaseSuccess ? (
         <div className="glass-card animate-fade-in" style={{textAlign:'center', padding:'40px 20px'}}>
@@ -202,6 +165,37 @@ export default function MobileApp() {
               <div className="progress-container"><div className="progress-bar" style={{width: `${(soldNumbersList.length/1000)*100}%`}}></div></div>
             </div>
           </section>
+
+          <div className="glass-card" style={{marginBottom:'15px', textAlign:'center', border: '1px solid var(--primary)'}}>
+            <h3 style={{marginBottom:'10px', display:'flex', alignItems:'center', justifyContent:'center', gap:'5px'}}><Search size={18}/> Consultar Número</h3>
+            <p style={{color:'var(--text-light)', marginBottom:'15px', fontSize:'0.85rem'}}>Verifica si un número está disponible o vendido.</p>
+            <input 
+              type="text" 
+              className="form-input" 
+              placeholder="Ej: 045"
+              value={consultNumber}
+              onChange={(e) => setConsultNumber(e.target.value)}
+              maxLength={3}
+              style={{textAlign:'center', fontSize:'1.2rem', marginBottom:'15px', maxWidth:'150px', margin:'0 auto 15px'}}
+            />
+            {consultNumber.length === 3 && (
+              <div style={{padding:'10px', borderRadius:'8px', background: soldNumbersList.includes(consultNumber) ? 'rgba(239,68,68,0.1)' : 'rgba(16,185,129,0.1)'}}>
+                {soldNumbersList.includes(consultNumber) ? (
+                  <>
+                    <strong style={{color:'var(--danger)'}}>No disponible</strong>
+                    <small style={{color:'var(--text-light)', display:'block'}}>El {consultNumber} ya fue apartado.</small>
+                  </>
+                ) : ALL_NUMBERS.includes(consultNumber) ? (
+                  <>
+                    <strong style={{color:'var(--success)'}}>¡Disponible!</strong>
+                    <small style={{color:'var(--text-light)', display:'block'}}>El {consultNumber} está libre.</small>
+                  </>
+                ) : (
+                  <small style={{color:'var(--text-light)'}}>Número inválido</small>
+                )}
+              </div>
+            )}
+          </div>
 
           <div className="glass-card" style={{marginBottom: '15px'}}>
             <div style={{ display: 'flex', gap: '5px', marginBottom: '15px', flexWrap: 'wrap' }}>
@@ -281,14 +275,10 @@ export default function MobileApp() {
 
   return (
     <>
-      <header><div className="header-content container" style={{display:'flex', justifyContent:'space-between', alignItems:'center'}}>
-        <strong onClick={()=>navigate('/')} style={{cursor:'pointer'}}>🐾 Rifa Choco</strong>
-        <button className="btn btn-outline" onClick={()=>navigate('/comprar')} style={{fontSize:'0.75rem', padding:'5px 10px'}}>Comprar</button>
-      </div></header>
+      <header><div className="header-content container"><strong>🐾 Rifa Choco</strong></div></header>
       {toast && <div className="toaster"><div className={`toast ${toast.type}`}>{toast.message}</div></div>}
       <Routes>
-        <Route path="/" element={<ConsultView />} />
-        <Route path="/comprar" element={<PurchaseView />} />
+        <Route path="/" element={<HomeView />} />
         <Route path="/ventas" element={<AdminView />} />
       </Routes>
     </>
