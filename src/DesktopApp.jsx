@@ -597,7 +597,21 @@ export default function DesktopApp() {
           </button>
         </div>
       </header>
-
+      {purchaseSuccess ? (
+        <div className="container animate-fade-in" style={{paddingTop:'4rem', paddingBottom:'4rem'}}>
+          <div className="glass-card" style={{textAlign:'center', maxWidth:'500px', margin:'0 auto'}}>
+            <CheckCircle2 color="var(--success)" size={64} style={{margin:'0 auto 20px'}}/>
+            <h2 style={{marginBottom:'10px'}}>¡Números Apartados!</h2>
+            <p style={{color:'var(--text-light)', marginBottom:'25px'}}>Para confirmar tu compra, envía el comprobante por WhatsApp.</p>
+            <button className="btn btn-primary" style={{width:'100%', marginBottom:'15px', padding:'1rem', fontSize:'1.1rem'}} onClick={() => {
+              const msg = `¡Hola! Acabo de reservar números para la Rifa de Choco 🐾\n\n*Nombre:* ${purchaseSuccess.name}\n*Números:* ${purchaseSuccess.numbers.join(', ')}\n*Total:* $${(purchaseSuccess.tickets * 10000).toLocaleString()}\n\n¿Me podrías confirmar los datos de pago?`;
+              window.open(`https://wa.me/573015085806?text=${encodeURIComponent(msg)}`, '_blank');
+              setPurchaseSuccess(null);
+            }}>
+              <Phone size={18}/> Enviar Comprobante por WhatsApp
+            </button>
+            <button className="btn btn-outline" style={{width:'100%'}} onClick={()=>setPurchaseSuccess(null)}>Cerrar</button>
+          </div>
         </div>
       ) : (
       <main>
