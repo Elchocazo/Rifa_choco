@@ -184,75 +184,36 @@ export default function MobileApp() {
           </div>
 
           <div className="glass-card" style={{marginBottom: '15px'}}>
-            <div style={{ display: 'flex', gap: '5px', marginBottom: '15px', flexWrap: 'wrap' }}>
-              <button onClick={() => setSelectionMode('manual')} className={`btn ${selectionMode === 'manual' ? 'btn-primary' : 'btn-outline'}`} style={{flex:1, padding:'10px', fontSize:'0.8rem'}}>Manual</button>
-              <button onClick={() => setSelectionMode('text')} className={`btn ${selectionMode === 'text' ? 'btn-primary' : 'btn-outline'}`} style={{flex:1, padding:'10px', fontSize:'0.8rem'}}>Texto</button>
-              <button onClick={() => setSelectionMode('auto')} className={`btn ${selectionMode === 'auto' ? 'btn-primary' : 'btn-outline'}`} style={{flex:1, padding:'10px', fontSize:'0.8rem'}}>Azar</button>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '1rem', textAlign: 'center' }}>
+              Números Disponibles
+            </h2>
+            <p style={{ textAlign: 'center', color: 'var(--text-light)', marginBottom: '1.5rem', fontSize: '0.9rem' }}>
+              Consulta aquí las tablas para ver qué números están libres. Los marcados en rojo ya fueron apartados.
+            </p>
+            
+            <div style={{ marginBottom: '1.5rem', display: 'flex', justifyContent: 'center' }}>
+              <button 
+                onClick={() => {
+                  window.open('https://wa.me/573015085806?text=¡Hola! Me gustaría comprar puestos para la rifa de Choco 🐾', '_blank');
+                }}
+                className="btn btn-primary"
+                style={{ padding: '0.75rem 1.5rem', fontSize: '1.1rem', display: 'flex', alignItems: 'center', gap: '0.5rem', background: '#25D366', borderColor: '#25D366', width: '100%', justifyContent: 'center' }}
+              >
+                <Phone size={18} /> Comprar por WhatsApp
+              </button>
             </div>
 
-            {selectionMode === 'auto' && (
-              <div style={{ marginBottom: '15px', padding: '10px', background: 'var(--surface)', borderRadius: '8px' }}>
-                <label style={{ display: 'block', marginBottom: '10px', fontSize: '0.9rem', fontWeight: 'bold' }}>¿Cuántos puestos? (1 puesto = 4 nums)</label>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <input type="number" min="1" value={autoTicketsCount} onChange={(e) => setAutoTicketsCount(parseInt(e.target.value) || 1)} className="form-input" style={{flex:1}}/>
-                  <button onClick={handleAutoGenerate} className="btn btn-primary" style={{whiteSpace:'nowrap', padding: '10px 15px'}}>Generar</button>
-                </div>
-              </div>
-            )}
-
-            {selectionMode === 'text' && (
-              <div style={{ marginBottom: '15px', padding: '10px', background: 'var(--surface)', borderRadius: '8px' }}>
-                <label style={{ display: 'block', marginBottom: '10px', fontSize: '0.9rem', fontWeight: 'bold' }}>Ingresa números (ej: 015, 45, 102)</label>
-                <div style={{ display: 'flex', gap: '10px' }}>
-                  <input type="text" value={manualInput} onChange={(e) => setManualInput(e.target.value)} className="form-input" placeholder="Ej: 005, 12, 450" style={{flex:1}} onKeyDown={(e) => { if(e.key === 'Enter') handleManualInputSubmit(); }}/>
-                  <button onClick={handleManualInputSubmit} className="btn btn-primary" style={{padding: '10px 15px'}}>Agregar</button>
-                </div>
-              </div>
-            )}
-
-            {selectionMode === 'manual' && (
-              <>
-                <div className="tabs-container">
-                  {Array.from({length:10}, (_,i) => <button key={i} className={`tab-btn ${activeTab===i?'active':''}`} onClick={()=>setActiveTab(i)}>{i}00s</button>)}
-                </div>
-                <div className="numbers-grid">
-                  {ALL_NUMBERS.slice(activeTab*100, (activeTab*100)+100).map(num => (
-                    <button key={num} disabled={soldNumbersList.includes(num)}
-                      className={`number-btn ${soldNumbersList.includes(num)?'sold':''} ${selectedNumbers.includes(num)?'selected':''}`}
-                      onClick={()=>toggleNumber(num)}>{num}</button>
-                  ))}
-                </div>
-              </>
-            )}
+            <div className="tabs-container">
+              {Array.from({length:10}, (_,i) => <button key={i} className={`tab-btn ${activeTab===i?'active':''}`} onClick={()=>setActiveTab(i)}>{i}00s</button>)}
+            </div>
+            <div className="numbers-grid">
+              {ALL_NUMBERS.slice(activeTab*100, (activeTab*100)+100).map(num => (
+                <button key={num} disabled={soldNumbersList.includes(num)}
+                  className={`number-btn ${soldNumbersList.includes(num)?'sold':''}`}
+                  style={{ cursor: 'default' }}>{num}</button>
+              ))}
+            </div>
           </div>
-
-          {selectedNumbers.length > 0 && (
-            <div className="glass-card" style={{position:'sticky', bottom:'20px', zIndex:100, boxShadow:'0 -5px 20px rgba(0,0,0,0.1)'}}>
-              <div style={{marginBottom:'15px'}}>
-                <div style={{display:'flex', justifyContent:'space-between', alignItems:'center', marginBottom:'5px'}}>
-                  <h4 style={{margin:0, display:'flex', alignItems:'center', gap:'5px'}}><Ticket size={16}/> Tus números ({selectedNumbers.length})</h4>
-                  <small style={{fontWeight:'bold', color: selectedNumbers.length % 4 === 0 ? 'var(--success)' : 'var(--danger)'}}>
-                    {Math.floor(selectedNumbers.length / 4)} Puestos
-                  </small>
-                </div>
-                <div style={{display:'flex', gap:'5px', flexWrap:'wrap', maxHeight:'70px', overflowY:'auto', padding:'5px'}}>
-                  {selectedNumbers.map(n => (
-                    <span key={n} style={{width:'30px', height:'30px', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'0.8rem', background:'var(--primary)', color:'white', borderRadius:'6px', fontWeight:'bold'}}>{n}</span>
-                  ))}
-                </div>
-                {selectedNumbers.length % 4 !== 0 && (
-                   <small style={{display:'block', marginTop:'5px', color:'var(--danger)', fontSize:'0.75rem'}}>Faltan {4 - (selectedNumbers.length % 4)} para completar un puesto.</small>
-                )}
-              </div>
-              <form onSubmit={handlePurchase}>
-                <input type="text" className="form-input" placeholder="Nombre completo" value={name} onChange={e=>setName(e.target.value)} required style={{marginBottom:'10px'}}/>
-                <input type="tel" className="form-input" placeholder="WhatsApp" value={phone} onChange={e=>setPhone(e.target.value)} required style={{marginBottom:'15px'}}/>
-                <button type="submit" className="btn btn-primary" disabled={selectedNumbers.length%4!==0} style={{width:'100%', padding:'12px'}}>
-                  Reservar {selectedNumbers.length/4} Puesto(s)
-                </button>
-              </form>
-            </div>
-          )}
         </>
       )}
       <div style={{textAlign:'center', padding:'20px'}}><small onClick={()=>navigate('/admin')} style={{color:'#ccc'}}>Admin</small></div>

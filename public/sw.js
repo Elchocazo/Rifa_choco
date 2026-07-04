@@ -1,4 +1,4 @@
-const CACHE_NAME = 'rifa-choco-v1';
+const CACHE_NAME = 'rifa-choco-v2';
 const ASSETS = [
   '/',
   '/index.html',
@@ -26,11 +26,9 @@ self.addEventListener('activate', (event) => {
   );
 });
 
-// Fetch event - serve from cache or network
+// Fetch event - serve from network first, fallback to cache
 self.addEventListener('fetch', (event) => {
   event.respondWith(
-    caches.match(event.request).then((response) => {
-      return response || fetch(event.request);
-    })
+    fetch(event.request).catch(() => caches.match(event.request))
   );
 });
