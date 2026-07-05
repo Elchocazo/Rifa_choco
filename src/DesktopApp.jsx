@@ -830,7 +830,7 @@ export default function DesktopApp() {
             </div>
             </>
             ) : (
-              {purchaseForm}
+              purchaseForm
             )}
           </div>
         </main>

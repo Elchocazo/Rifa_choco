@@ -827,7 +827,7 @@ export default function MobileApp() {
             </div>
             </>
             ) : (
-              {purchaseForm}
+              purchaseForm
             )}
           </div>
         </main>
