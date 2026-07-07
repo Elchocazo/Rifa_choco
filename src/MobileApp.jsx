@@ -103,8 +103,13 @@ export default function MobileApp() {
 
   const deleteTicket = async (id) => {
     if (window.confirm('¿Estás seguro de que deseas eliminar este registro? Los números volverán a estar disponibles.')) {
-      await deleteDoc(doc(db, 'tickets', id));
-      showToast('Registro eliminado correctamente.');
+      const password = window.prompt('Por favor, ingresa la contraseña para borrar:');
+      if (password === '3627') {
+        await deleteDoc(doc(db, 'tickets', id));
+        showToast('Registro eliminado correctamente.');
+      } else if (password !== null) {
+        alert('Contraseña incorrecta. Operación cancelada.');
+      }
     }
   };
 
